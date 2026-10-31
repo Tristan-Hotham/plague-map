@@ -1,0 +1,148 @@
+<!-- wp:paragraph -->
+<p><em>The Black Death reached Sicily in 1347, and then it kept coming back, to the same towns, roughly once a generation, for three hundred years. I mapped {{span.n_town_years|int}} recorded outbreak years in {{span.n_towns|int}} towns, year by year, to watch plague arrive, return and finally leave.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://maps.tristanhotham.com/plague-map/">Explore the interactive version</a></div>
+<!-- /wp:button -->
+<!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{DOI_URL}}">Read the paper</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+
+<!-- wp:paragraph -->
+<p>Most of us learn about plague as a single catastrophe: the Black Death of 1347 to 1351, a third or more of Europe dead, and then, somehow, the Renaissance. But for the people who lived through the following centuries, plague was not a single event. It was a recurring fact of town life, something your grandparents remembered and your grandchildren would probably see.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In the 1970s the French demographer and historian Jean-Noël Biraben compiled an inventory of plague outbreaks across Europe and the Mediterranean, place by place and year by year. In 2012 Ulf Büntgen and colleagues digitised it and published it as open data. After some repairs (more on those below) it holds {{span.n_town_years|int}} town-years with plague recorded, in {{span.n_towns|int}} towns, from Messina in 1347 to Porto in 1900. I put all of it on an animated map you can play like a film.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Four years from Sicily to the Baltic</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The first records are in ten towns in 1347, all of them Mediterranean ports or close to one: Messina and the other Sicilian ports, Reggio across the strait, Naples, Genoa and Cagliari. In 1348 plague is recorded in {{year_1348|int}} towns, from Alexandria and Cairo to Seville, Bordeaux, London and Bristol. In 1349 it reaches Paris and the German lands, and in 1350 the Baltic.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full"} -->
+<figure class="wp-block-image size-full">{{IMG|b_wave_map.png|Map of Europe and the Mediterranean with towns coloured by the year plague was first recorded there: the darkest red in Sicily, Naples, Genoa and Sardinia for 1347, red across Italy, southern France, Spain, southern England and Ireland for 1348, orange in northern France, Switzerland and southern Germany for 1349, and pale orange along the Baltic coast and in Poland for 1350|The first wave: each town coloured by the year plague was first recorded there, 1347 to 1353.}}</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>How fast was it? That is a harder question than it looks. The inventory gives years, not days, and the first surviving record of plague in a town is not the day it arrived. Ships also carried it in great leaps: it was in England, about 2,000 km from Messina, in 1348, while towns much nearer were not reached until 1349 or 1350. Fitting a line through distance and year gives somewhere between {{wave.speed_lo|int}} and {{wave.speed_hi|int}} km a year as the crow flies, or roughly half a kilometre a day, depending on how you measure it. Treat that as an average over fast sea passages and slow overland spread, not the speed of any single journey.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">It never really left</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Press play on the map and the surprise is what happens after 1350. Plague is recorded in almost every decade until the 1660s, and the busiest decade in the whole record is not the 1340s but the {{decade_peak.d|yr}}s, with {{decade_peak.n|int}} town-years, when plague swept France and northern Italy. The single busiest year is {{year_peak.y|yr}}, with {{year_peak.n|int}} towns.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full"} -->
+<figure class="wp-block-image size-full">{{IMG|b_decades.png|Stacked bar chart of town-years with plague per decade from the 1340s to the 1900s, coloured by region: a spike in the 1340s, a steady rise through the fifteenth and sixteenth centuries dominated by France in green, a peak of 570 in the 1630s, then a collapse after the 1660s to a thin tail made up mostly of North Africa and the eastern Mediterranean|Town-years with plague recorded per decade, by region.}}</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Some of that rise is a rise in paperwork. Town archives, health boards and printed bills of mortality multiply in the sixteenth and seventeenth centuries, so later outbreaks are more likely to have been written down and to have survived. But the shape is real enough: plague was a fixture of European life for three centuries.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">Once a generation, or more often</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>London has the most outbreak years in the inventory, {{top_towns.0.n|int}} between {{top_towns.0.first|yr}} and {{top_towns.0.last|yr}}, ahead of Algiers ({{top_towns.1.n|int}}), Paris ({{top_towns.2.n|int}}) and Toulouse ({{top_towns.3.n|int}}). Big numbers belong to big towns with good records: London's bills of mortality are among the best plague sources anywhere.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full"} -->
+<figure class="wp-block-image size-full">{{IMG|b_top_towns.png|Horizontal bar chart of the twenty towns with most years with plague recorded: London 132, Algiers 112, Paris 89, Toulouse 88, Izmir 86, then Bourg-en-Bresse, Amiens, Nantes, Bordeaux and Venice, with most of the twenty in France|The twenty towns with most years with plague recorded.}}</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>When plague struck it often lingered over a winter, so I joined consecutive outbreak years into a single episode. The median gap from one episode to the next in the same town is {{recur.median|int}} years, and half of all gaps fall between {{recur.q25|int}} and {{recur.q75|int}} years. Over the centuries the gaps get shorter, from a median of {{recur.by_century.1300.median|f1}} years for episodes starting in the fourteenth century to {{recur.by_century.1600.median|int}} in the seventeenth. A child born just after an epidemic would very likely see the next.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full"} -->
+<figure class="wp-block-image size-full">{{IMG|b_intervals.png|Histogram of years between successive plague episodes in the same town, highest at two to four years and falling steadily, with a median of 13 years marked and a tall final bar for gaps of 60 years or more|Years between successive plague episodes in the same town.}}</figure>
+<!-- /wp:image -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><!-- wp:paragraph -->
+<p>London has {{landmarks.london_n|int}} plague years in the record. Constantinople, one of the great plague cities, has none.</p>
+<!-- /wp:paragraph --></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">When plague left</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Plague did not leave Europe all at once. Taking the last year in which three or more towns in a region record it, plague left Italy first ({{regions.0.last_wide|yr}}), then Britain and Ireland ({{regions.1.last_wide|yr}}, the tail of London's Great Plague), Iberia ({{regions.2.last_wide|yr}}), Poland and the Baltic ({{regions.3.last_wide|yr}}), central Europe ({{regions.4.last_wide|yr}}) and France ({{regions.5.last_wide|yr}}, after the Great Plague of Marseille). In North Africa it stayed widespread until {{regions.6.last_wide|yr}}, and in Anatolia, the Levant and Egypt until {{regions.7.last_wide|yr}}: {{gap_otto_brit|int}} years after Britain.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full"} -->
+<figure class="wp-block-image size-full">{{IMG|b_end_regions.png|Chart with one line per region from first to last recorded outbreak, with a large dot for the last year with plague in three or more towns: Italy 1657, Britain and Ireland 1667, Iberia 1681, Poland and the Baltic 1712, central Europe 1713, France 1722, North Africa 1821, and Anatolia, the Levant and Egypt 1834|When plague left each region: the large dot is the last year with plague in three or more towns.}}</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The famous last epidemics are all there: London in 1665 (recorded in {{landmarks.gbr_1665_n|int}} British towns that year), Marseille in 1720 to 1722, Messina again in 1743. So are some strays: a single year at Marseille in {{landmarks.marseille_last|yr}}, Noicattaro near Bari in 1815, Mallorca in 1819, and Porto in 1899, which was the third pandemic arriving by sea rather than the last of the second.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image {"sizeSlug":"full"} -->
+<figure class="wp-block-image size-full">{{IMG|b_last_map.png|Map of towns coloured by the last year plague was recorded there: dark and mid blue (before 1650) across most of Britain, France, Spain and Italy, yellow (1650 to 1699) scattered through England, Germany and southern Spain, orange (eighteenth century) in Poland, the Baltic and Provence, and dark red (after 1800) along the North African coast, in Izmir and in Egypt|When each town last recorded plague.}}</figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">A map of surviving documents</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The honest caveat is a big one. This is a map of where plague was written down, where the writing survived, and where Biraben and the historians he relied on looked. France alone holds {{cover.top_pct|pc}} of the outbreak years. The Low Countries, Scandinavia, Hungary and the Balkans have few or no records. Moscow's terrible epidemic of 1771 is missing, Russia appears only twice, and Constantinople not at all. The inventory says plague was present in a year, not how many people died, so a handful of cases counts the same as a catastrophe. Some years are approximate.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2 class="wp-block-heading">How I did this</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>I started from the published file of {{clean.n_raw|int}} rows. Its latitude and longitude columns are swapped, which I checked against its own projected coordinates; two rows for Eisleben were broken by a comma in the name; one row has the year 9999; and {{clean.n_dupe|int}} rows repeat a town and year. A few towns had been geocoded to the wrong place by a computer (Prague to a village in Bavaria, Milan to near Treviso, Noja near Bari to Cantabria in Spain), and I moved the five clearest cases. Each town is placed in a modern country and one of eight regions. Consecutive outbreak years in a town count as one episode for the recurrence figures, and the first-wave speeds are straight-line slopes fitted through distance and year. The paper sets out every step and caveat, and the cleaned data are free to reuse.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:buttons -->
+<div class="wp-block-buttons"><!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://maps.tristanhotham.com/plague-map/">Explore the interactive version</a></div>
+<!-- /wp:button -->
+<!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="{{DOI_URL}}">Read the paper</a></div>
+<!-- /wp:button -->
+<!-- wp:button -->
+<div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="https://github.com/Tristan-Hotham/plague-map">Data and code</a></div>
+<!-- /wp:button --></div>
+<!-- /wp:buttons -->
+
+<!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Notes and sources</h3>
+<!-- /wp:heading -->
+
+<!-- wp:list -->
+<ul class="wp-block-list"><!-- wp:list-item -->
+<li>Büntgen U, Ginzler C, Esper J, Tegel W, McMichael AJ (2012) Digitizing historical plague. <em>Clinical Infectious Diseases</em> 55(11), 1586 to 1588. Data: <a href="https://doi.org/10.16904/envidat.181">EnviDat, doi:10.16904/envidat.181</a>, Open Database Licence 1.0. The cleaned tables I publish are a derived database, also under the ODbL.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Biraben J-N (1975 to 1976) <em>Les hommes et la peste en France et dans les pays européens et méditerranéens</em>. Paris and The Hague: Mouton.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>Roosen J, Curtis DR (2018) Dangers of noncritical use of historical plague data. <em>Emerging Infectious Diseases</em> 24(1), 103 to 110: a good guide to the limits of sources like this one.</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li><a href="https://www.naturalearthdata.com/">Natural Earth</a> country outlines and places (public domain).</li>
+<!-- /wp:list-item -->
+<!-- wp:list-item -->
+<li>I wrote the text, with drafting and editing assistance from Claude (Anthropic), which also helped prepare the analysis code. I reviewed and checked all text and results.</li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->

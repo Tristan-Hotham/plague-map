@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Plague Years</title>
+<meta name="description" content="Five centuries of plague on one animated map: {{span.n_town_years|int}} outbreak years in {{span.n_towns|int}} towns across Europe and the Mediterranean, 1347 to 1900, from a digitised copy of Biraben's inventory.">
+<meta property="og:title" content="The plague years: five centuries of plague in {{span.n_towns|int}} towns, 1347 to 1900">
+<meta property="og:description" content="The Black Death's first wave, the outbreaks that followed it for three hundred years, and when plague left each region, mapped year by year.">
+<meta property="og:image" content="https://maps.tristanhotham.com/plague-map/header.png">
+<meta property="og:url" content="https://maps.tristanhotham.com/plague-map/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800;9..144,900&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+/* Parchment, iron-gall ink, a plague red and a lapis blue. Region colours are set in the script. */
+:root{
+  --bg:#F7F2E7; --panel:#EEE6D4; --fg:#231D19; --muted:#6B6158; --rule:#E2D8C4; --card:#FFFCF5; --border:#D3C6AE;
+  --hot:#A3241B; --cool:#3E5FB8; --gold:#B88400; --land:#ECE4D2; --sea:#F2EEE5;
+  --display:"Fraunces",Georgia,"Times New Roman",serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17130F; --panel:#221D18; --fg:#EFE8DE; --muted:#A99E92; --rule:#38302A; --card:#1E1914; --border:#4B4138;
+  --hot:#EE6B5B; --cool:#8EA6E6; --gold:#E9BF4E; --land:#2A241E; --sea:#1B1714; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17130F; --panel:#221D18; --fg:#EFE8DE; --muted:#A99E92; --rule:#38302A; --card:#1E1914; --border:#4B4138;
+  --hot:#EE6B5B; --cool:#8EA6E6; --gold:#E9BF4E; --land:#2A241E; --sea:#1B1714; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 18px/1.62 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));overflow-x:hidden}
+.wrap{max-width:700px;margin:0 auto;padding-block:28px 64px}
+.wrap .bleed{width:min(1180px,calc(100vw - 32px));margin-left:calc((100% - min(1180px,100vw - 32px))/2);margin-right:0}
+a{color:inherit;text-decoration-color:var(--hot);text-underline-offset:3px}
+.kicker{font:500 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kicker b{background:var(--hot);color:#fff;padding:5px 8px;font-weight:500}
+header.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px 24px;align-items:end;border-bottom:6px double var(--fg);padding-bottom:22px;margin-top:18px}
+h1{font:900 clamp(44px,11vw,96px)/.9 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1 .a{color:var(--hot)}
+.mark{width:clamp(90px,18vw,150px);height:auto;display:block}
+.dek{grid-column:1/-1;font-size:21px;line-height:1.42;margin:8px 0 0;max-width:56ch}
+.byline{font:400 13px/1.4 var(--mono);color:var(--muted);margin-top:14px}
+h2{font:800 34px/1.04 var(--display);letter-spacing:-.01em;margin:54px 0 10px;text-wrap:balance}
+h2 .n{font:500 13px/1 var(--mono);color:var(--hot);display:block;letter-spacing:.1em;margin-bottom:10px}
+h3{font:600 20px/1.25 var(--display);margin:28px 0 6px}
+p{margin:0 0 16px}
+.lede::first-letter{font:900 72px/.8 var(--display);float:left;margin:6px 10px 0 0;color:var(--hot)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0 8px}
+.stats div{background:var(--card);padding:14px 12px}
+.stats b{display:block;font:900 clamp(22px,4.4vw,32px)/1 var(--display);letter-spacing:-.01em}
+.stats b.h{color:var(--hot)} .stats b.c{color:var(--cool)} .stats b.g{color:var(--gold)}
+.stats span{font:400 12px/1.35 var(--mono);color:var(--muted);display:block;margin-top:6px}
+@media (max-width:600px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.figure{margin:26px 0 30px}
+.fig-h{font:600 19px/1.25 var(--display);margin:0 0 4px}
+.fig-sub{font:400 13px/1.45 var(--mono);color:var(--muted);margin:0 0 12px}
+.src{font:400 12px/1.45 var(--mono);color:var(--muted);margin-top:10px}
+.chart{width:100%;position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{font-family:var(--mono);fill:var(--fg)}
+.lab{font-size:12px}.lab.m{fill:var(--muted)}.lab.b{font-weight:500}.lab.s{font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--fg);color:var(--bg);font:400 12px/1.45 var(--mono);padding:8px 10px;border-radius:3px;max-width:290px;z-index:1000;transform:translate(-50%,calc(-100% - 12px));display:none}
+.tip b{font-weight:500}
+.controls{display:flex;gap:8px;align-items:center;margin:0 0 10px;flex-wrap:wrap}
+.scrollrow{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;padding-bottom:2px;max-width:100%}
+.scrollrow .btn{flex:0 0 auto;white-space:nowrap}
+.ctl-l{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:2px;flex:0 0 auto;align-self:center}
+.btn{font:500 12px/1 var(--mono);background:var(--card);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:8px 10px;cursor:pointer;min-height:36px}
+.btn[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.btn .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+.btn:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:2px solid var(--hot);outline-offset:2px}
+.tabs .btn[aria-pressed="true"]{background:var(--hot);border-color:var(--hot);color:#fff}
+.searchbox{position:relative;flex:1 1 260px;min-width:0}
+input[type=search]{font:400 15px/1 var(--mono);background:var(--card);color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:10px 11px;min-height:40px;width:100%}
+.suggest{position:absolute;left:0;right:0;top:100%;margin:2px 0 0;padding:0;list-style:none;background:var(--card);border:1px solid var(--border);z-index:1001;font:400 13px/1.3 var(--mono);display:none;max-height:340px;overflow:auto}
+.suggest li{padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--rule)}
+.suggest li span{color:var(--muted)}
+.suggest li[aria-selected="true"],.suggest li:hover{background:var(--panel)}
+.timebar{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:10px;align-items:center;margin:0 0 10px;background:var(--card);border:1px solid var(--border);padding:8px 10px;border-radius:3px}
+.timebar[hidden]{display:none}
+.play{width:42px;height:42px;border-radius:50%;border:0;background:var(--hot);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.play svg{width:18px;height:18px}
+.yr{font:900 34px/1 var(--display);min-width:3ch;font-variant-numeric:tabular-nums}
+.yr small{display:block;font:400 11px/1.2 var(--mono);color:var(--muted);margin-top:3px;white-space:nowrap}
+.slide{min-width:0}
+.slide input[type=range]{width:100%;accent-color:var(--hot);margin:0;display:block;height:26px}
+.spark{display:block;width:100%;height:34px}
+.speed{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.speed .btn{min-height:26px;padding:4px 7px;font-size:11px}
+@media (max-width:520px){.timebar{grid-template-columns:auto 1fr}.slide{grid-column:1/-1}.yr{font-size:28px}}
+.mapgrid{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+@media (max-width:900px){.mapgrid{grid-template-columns:1fr}}
+.side{background:var(--card);border:1px solid var(--border);padding:12px 12px 10px;font:400 13px/1.45 var(--mono);max-height:640px;overflow:auto}
+@media (max-width:900px){.side{max-height:none}}
+.side h4{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.side h4:first-child{margin-top:2px}
+.side .big{font:800 26px/1.1 var(--display);margin:2px 0 4px}
+.side .sub{color:var(--muted);font-size:12px;margin:0 0 8px}
+.side table{width:100%;border-collapse:collapse;margin:4px 0 6px}
+.side td{padding:4px 4px 4px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.side td.num{text-align:right;white-space:nowrap}
+.yrs{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 8px}
+.yrs span{font:400 11px/1 var(--mono);padding:4px 5px;border-radius:2px;background:var(--panel);cursor:pointer}
+.yrs span.on{background:var(--hot);color:#fff}
+.go{cursor:pointer;text-decoration:underline;text-decoration-color:var(--border);text-underline-offset:3px}
+.back{font:400 12px var(--mono);background:none;border:0;color:var(--muted);padding:0;cursor:pointer;text-decoration:underline;margin-bottom:6px}
+.sw{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:6px;vertical-align:-1px;border:1px solid rgba(0,0,0,.15)}
+.lmap{height:620px;border:1px solid var(--border);background:var(--sea);border-radius:2px}
+@media (max-width:600px){.lmap{height:min(62vh,460px)}}
+.leaflet-container{font:400 12px/1.4 var(--mono);background:var(--sea)}
+.lyrBtn{background:var(--card,var(--bg));color:var(--fg);border:1px solid var(--border);border-radius:3px;font:600 12px/1 var(--mono);padding:8px 10px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.lyrBtn[aria-expanded="true"]{background:var(--fg);color:var(--bg)}
+.lyrPanel{background:var(--card,var(--bg));color:var(--fg);border:1px solid var(--border);border-radius:3px;padding:10px 12px 8px;margin-top:6px;width:250px;box-shadow:0 2px 10px rgba(0,0,0,.15);font:400 12px/1.3 var(--mono);max-height:min(70vh,520px);overflow:auto}
+.lyrPanel[hidden]{display:none}
+.lyrPanel .row{margin:0 0 9px}
+.lyrPanel label{display:flex;gap:6px;align-items:center;cursor:pointer;font-weight:600}
+.lyrPanel input[type=range]{width:100%;accent-color:var(--fg)}
+.lyrPanel select{font:400 12px var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:2px;padding:2px 4px;width:100%;min-height:0}
+.lyrPanel .sub{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:11px;margin-top:3px}
+.lyrPanel .sub span{flex:0 0 58px}
+.lyrPanel .hd{font:500 10.5px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 7px;border-top:1px solid var(--rule);padding-top:9px}
+.lyrPanel .reset{font:400 11px var(--mono);color:var(--muted);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}
+.cityL{font:500 11px/1 var(--mono);color:var(--fg);white-space:nowrap;text-shadow:0 0 3px var(--bg),0 0 3px var(--bg),0 0 2px var(--bg);pointer-events:none}
+.cityL i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--fg);margin-right:4px;vertical-align:1px}
+.cityL.s{font-size:10px;font-weight:400}
+.cntL{font:700 11px/1 var(--mono);color:var(--fg);white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;opacity:.7;text-shadow:0 0 3px var(--bg),0 0 3px var(--bg);pointer-events:none;text-align:center}
+.mapnote{background:color-mix(in srgb,var(--card) 92%,transparent);border:1px solid var(--border);border-radius:3px;padding:6px 9px;font:400 12px/1.35 var(--mono);max-width:min(300px,62vw);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.mapnote b{font-weight:600}
+.mapnote:empty{display:none}
+.leaflet-bar a,.leaflet-bar a:hover{background:var(--card);color:var(--fg);border-bottom-color:var(--border)}
+.leaflet-control-attribution{background:color-mix(in srgb,var(--card) 85%,transparent)!important;color:var(--muted)}
+.leaflet-control-attribution a{color:var(--fg)}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font:400 12px/1.3 var(--mono);color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center}
+.legend i{display:inline-block;width:13px;height:13px;margin-right:6px;border-radius:50%;border:1px solid rgba(0,0,0,.15)}
+.legend i.sq{border-radius:2px}
+.pull{font:600 26px/1.25 var(--display);border-left:6px solid var(--hot);padding:4px 0 4px 18px;margin:30px 0}
+.note{background:var(--panel);border:1px solid var(--rule);padding:14px 16px;font-size:16px;margin:22px 0}
+.note h3{margin-top:0}
+table.tbl{width:100%;border-collapse:collapse;font:400 13px/1.4 var(--mono);margin:8px 0}
+table.tbl th{text-align:left;font-weight:500;color:var(--muted);border-bottom:2px solid var(--fg);padding:6px 6px 6px 0}
+table.tbl td{border-bottom:1px solid var(--rule);padding:6px 6px 6px 0;vertical-align:top}
+table.tbl td.num,table.tbl th.num{text-align:right}
+.tblwrap{overflow-x:auto}
+details{margin:14px 0}
+summary{font:500 13px/1.4 var(--mono);cursor:pointer;color:var(--fg);padding:8px 0}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.cta a{font:500 13px/1 var(--mono);text-decoration:none;border:1px solid var(--fg);padding:11px 14px;border-radius:3px}
+.cta a.p{background:var(--hot);border-color:var(--hot);color:#fff}
+footer{border-top:6px double var(--fg);margin-top:56px;padding-top:16px;font:400 13px/1.55 var(--mono);color:var(--muted)}
+footer p{margin:0 0 10px}
+.theme{position:fixed;right:12px;bottom:12px;z-index:1002}
+@media print{.theme,.controls,.timebar{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker"><b>Data study</b><span>History</span><span>Europe and the Mediterranean, 1347 to 1900</span></div>
+<header class="hero">
+  <h1>The <span class="a">plague</span> years</h1>
+  <svg class="mark" viewBox="0 0 150 120" aria-hidden="true"><g id="heroMark"></g></svg>
+  <p class="dek">The Black Death reached Sicily in 1347. For the next three centuries plague kept coming back, to the same towns, every decade or so. This is that history mapped year by year: {{span.n_town_years|int}} recorded outbreak years in {{span.n_towns|int}} towns, from Messina in 1347 to Porto in 1900, and the order in which plague finally left.</p>
+</header>
+<div class="byline">Dr Tristan Hotham · Independent researcher · 2026 · Data: Büntgen and others (2012), a digitisation of Biraben's inventory (1975 to 1976); Natural Earth</div>
+
+<div class="stats">
+  <div><b class="h">{{span.n_town_years|int}}</b><span>town-years with plague recorded, 1347 to 1900</span></div>
+  <div><b>{{span.n_towns|int}}</b><span>towns in {{n_countries|int}} modern countries</span></div>
+  <div><b class="g">{{recur.median|int}} years</b><span>median gap before plague returned to the same town</span></div>
+  <div><b class="c">{{landmarks.london_n|int}}</b><span>years with plague recorded in London, {{landmarks.london_first|yr}} to {{landmarks.london_last|yr}}</span></div>
+</div>
+
+<p class="lede">Plague is a disease of rats and their fleas that spills over into people. In 1347 it arrived in the Mediterranean on ships from the Black Sea, and within four years it had killed perhaps a third or more of the people of Europe. Then it stayed. For three hundred years and more a town could expect plague to return in most generations, and it did, until, region by region, it stopped. The map below shows every outbreak year in one of the great inventories of that history, Jean-Noël Biraben's, as digitised in 2012 by Ulf Büntgen and colleagues.</p>
+<p>Each dot is a town; each outbreak is a town and a year in which plague was recorded there. Press play to watch the Black Death spread out of the Mediterranean ports, then the waves that followed it. Switch view to see the first wave on its own, when each town last saw plague, or how often it came. Click any town for its full list of years.</p>
+
+<h2><span class="n">01 · The map</span>Five centuries, year by year</h2>
+<div class="bleed" id="atlas">
+<div class="controls">
+  <div class="scrollrow tabs" id="modeTabs"><span class="ctl-l">View</span></div>
+</div>
+<div class="timebar" id="timebar">
+  <button class="play" id="play" aria-label="Play"><svg viewBox="0 0 24 24" fill="currentColor" id="playIcon"><path d="M7 4l13 8-13 8z"/></svg></button>
+  <div class="yr" id="yrLab">1347<small id="yrSub"></small></div>
+  <div class="slide"><svg class="spark" id="spark" preserveAspectRatio="none" aria-hidden="true"></svg><input type="range" id="yr" min="1347" max="1900" step="1" value="1347" aria-label="Year">
+    <div class="speed" id="speed"><span class="ctl-l">Speed</span></div></div>
+</div>
+<div class="controls">
+  <div class="searchbox"><input type="search" id="q" placeholder="Search a town or country" aria-label="Search a town or country" autocomplete="off"><ul class="suggest" id="sug" role="listbox"></ul></div>
+</div>
+<div class="controls">
+  <div class="scrollrow" id="focusRow"><span class="ctl-l">Zoom to</span></div>
+</div>
+<div class="mapgrid">
+  <div><div id="map" class="lmap" role="application" aria-label="Map of plague outbreaks"></div>
+    <div class="legend" id="legend"></div></div>
+  <div class="side" id="side" aria-live="polite"></div>
+</div>
+<p class="src">Data: Büntgen U, Ginzler C, Esper J, Tegel W, McMichael AJ (2012), digitised from Biraben J-N (1975 to 1976), EnviDat, ODbL. Towns at their present-day positions; country outlines are modern (Natural Earth). Base map tiles © Esri.</p>
+</div>
+
+<h2><span class="n">02 · The Black Death</span>From the Sicilian ports to the Baltic in four years</h2>
+<p>The inventory's first outbreaks are in {{wave.n_seeds|int}} Mediterranean towns in 1347: Messina, Catania, Syracuse and the other Sicilian ports, Reggio across the strait, Naples, Genoa and Cagliari in Sardinia. In 1348 plague is recorded in {{year_1348|int}} towns, from Alexandria, Cairo and Tunis to Seville, Bordeaux, London and Bristol. By 1349 it is in Paris and the German lands; by 1350 it has reached Danzig, Stralsund and the eastern Baltic. In all, {{wave.n|int}} towns have their first recorded outbreak between 1347 and 1353, and {{wave.share_by_1348|pc}} of those in Europe were reached by the end of 1348.</p>
+<div class="figure"><p class="fig-h">How far from Messina, and when</p><p class="fig-sub">Each dot is a town with its first recorded outbreak in 1347 to 1353 ({{wave.n|int}} towns), by year and straight-line distance from Messina. Dots are spread sideways within each year so they do not overlap. Hover for the town.</p><div class="chart" id="waveChart"></div></div>
+<p>How fast did it travel? This needs care. The inventory gives years, not days, and the first surviving record of plague in a town is not the day it arrived. Ships also carried plague in great leaps: in 1348 it was already 2,000 km from Messina, in England, while towns much nearer were not reached until 1349 or 1350. Fitting a line through distance and year for the European towns gives a speed of about {{wave.speed_lo|int}} to {{wave.speed_hi|int}} km a year, depending on whether distance is measured from Messina or from the nearest town infected in 1347 and how the line is fitted. That is {{wave.day_lo|f1}} to {{wave.day_hi|f1}} km a day as the crow flies: an average over fast sea passages and slow movement overland, not the pace of any single journey. The year-by-year reach is clearer: the ten towns of 1347 all lie within {{wave.max_1347|int}} km of Messina ({{wave.far_1347|raw}} is the farthest); by the end of 1348 nine in ten of the towns reached lay within {{wave.p90_1348|int}} km, and the farthest, {{wave.far_1348|raw}}, {{wave.max_1348|int}} km away.</p>
+
+<h2><span class="n">03 · Five centuries</span>It never really left</h2>
+<p>The Black Death was the beginning, not the peak, of this record. Outbreaks are recorded in almost every decade from the 1340s to the 1660s, and the busiest decade is the {{decade_peak.d|yr}}s, with {{decade_peak.n|int}} town-years in {{decade_peak.towns|int}} towns, when plague swept France and northern Italy while the Thirty Years War raged in the German lands. The single busiest year is {{year_peak.y|yr}} ({{year_peak.n|int}} towns). Partly this is a record of record keeping: town archives fill out in the sixteenth and seventeenth centuries, and {{share_1500_1670|pc}} of all outbreak years fall between 1500 and 1669.</p>
+<div class="figure"><p class="fig-h">Outbreak years per decade, by region</p><p class="fig-sub">Town-years with plague recorded, by decade and region. Hover a bar for the numbers.</p><div class="chart" id="decChart"></div><div class="legend" id="decLeg"></div></div>
+<p>After the 1660s the bars collapse. Only {{after_1667_pct|f1}}% of the record comes after 1667, and from the 1720s onwards {{after_1670_south_pct|pc}} of it is in North Africa, Anatolia, the Levant and Egypt.</p>
+
+<h2><span class="n">04 · The towns</span>Where plague was recorded most</h2>
+<p>London has the most outbreak years in the inventory, {{top_towns.0.n|int}} between {{top_towns.0.first|yr}} and {{top_towns.0.last|yr}}, ahead of Algiers ({{top_towns.1.n|int}}), Paris ({{top_towns.2.n|int}}) and Toulouse ({{top_towns.3.n|int}}). Most towns appear far less often: {{towns_n1|int}} of the {{span.n_towns|int}} ({{towns_n1_pct|pc}}) have a single outbreak year, and the 20 busiest towns hold {{top20_share|pc}} of all records. A big number usually means a big town with good records, and an author who read them: London's bills of mortality, kept week by week from the sixteenth century, are among the best plague records anywhere.</p>
+<div class="figure"><p class="fig-h">The 20 towns with most outbreak years</p><p class="fig-sub">Distinct years with plague recorded, 1347 to 1900. Bars coloured by region. Click a bar to see the town on the map.</p><div class="chart" id="topChart"></div></div>
+
+<h2><span class="n">05 · Coming back</span>Once a generation, or more often</h2>
+<p>When plague struck a town it often stayed for more than one year, so I join consecutive outbreak years in a town into one episode ({{recur.n_episodes|int}} episodes in all, {{recur.multi_year_pct|pc}} of them lasting two years or more). The gap from the start of one episode to the start of the next in the same town has a median of {{recur.median|int}} years; half of all gaps are between {{recur.q25|int}} and {{recur.q75|int}} years, and {{recur.le15_pct|pc}} are 15 years or less. The gaps shorten over time, from a median of {{recur.by_century.1300.median|f1}} years for episodes starting in the fourteenth century to {{recur.by_century.1600.median|int}} in the seventeenth. In London, with {{recur.london_ep|int}} episodes, the median gap is {{recur.london_median|int}} years.</p>
+<div class="figure"><p class="fig-h">Years between outbreaks in the same town</p><p class="fig-sub">{{recur.n_intervals|int}} gaps between the starts of successive plague episodes in a town, in two-year bins; the last bar is 60 years or more.</p><div class="chart" id="ivChart"></div></div>
+<p>Some of this regularity is real: plague needed time for a town to refill with people who had not been exposed, and it came back with trade. Some of it is not. A long gap can simply be a gap in the archives.</p>
+
+<h2><span class="n">06 · The end</span>When plague left, region by region</h2>
+<p>Plague did not leave Europe all at once. Using the last year in which three or more towns in a region record plague, it left Italy first ({{regions.0.last_wide|yr}}), then Britain and Ireland ({{regions.1.last_wide|yr}}), Iberia ({{regions.2.last_wide|yr}}), Poland and the Baltic ({{regions.3.last_wide|yr}}), central Europe ({{regions.4.last_wide|yr}}) and France ({{regions.5.last_wide|yr}}). In North Africa it lasted to {{regions.6.last_wide|yr}} and in Anatolia, the Levant and Egypt to {{regions.7.last_wide|yr}}, a century after western Europe.</p>
+<div class="figure"><p class="fig-h">When plague left each region</p><p class="fig-sub">Line: first to last recorded outbreak. Diamond: the year by which 95% of the region's outbreak years had happened. Large dot: the last year with plague in three or more towns. Ring: the last record of all. Sorted by the large dot.</p><div class="chart" id="endChart"></div></div>
+<p>The famous last epidemics are all here. London's Great Plague of 1665 is recorded in {{landmarks.gbr_1665_n|int}} towns across Britain that year, and London's last recorded year is {{landmarks.london_last|yr}}. The Great Plague of Marseille, brought by a ship from the Levant in 1720, is recorded at Marseille in 1720, 1721 and 1722 and in {{landmarks.prov_1720_2_n|int}} towns of Provence and the south in those years. Messina, where the Black Death landed, was struck again in 1743. Last records in a region can be strays: a single year at Marseille in {{landmarks.marseille_last|yr}}, Noicattaro near Bari in 1815 and 1816, Mallorca in 1819, Porto in 1899 and 1900 (part of the third pandemic, which spread from Asia by sea). One famous epidemic is missing: Moscow's plague of 1771 is not in the digitised inventory at all, and Russia appears only twice, so the east is far less well covered than the west.</p>
+<div class="figure"><p class="fig-h">The last recorded outbreak in each country</p><p class="fig-sub">Modern countries, sorted by the last year with plague recorded anywhere in them.</p><div class="tblwrap"><table class="tbl" id="ctab"></table></div></div>
+<div class="cta"><a href="#atlas" data-mode="last">Show the last outbreaks on the map</a><a href="#atlas" data-year="1665" data-fit="brit">1665 in England</a><a href="#atlas" data-year="1720" data-fit="prov">1720 in Provence</a></div>
+
+<h2><span class="n">07 · The record</span>A map of surviving documents</h2>
+<p>This is a map of where plague was written down and where those writings survived and were read, not a complete map of plague. France alone holds {{cover.top_pct|pc}} of the outbreak years, and France and the United Kingdom together {{cover.fra_gbr_pct|pc}}: Biraben was a French demographer and historian, and his inventory is fullest for France. The Low Countries, Scandinavia, Bohemia beyond Prague, Hungary, the Balkans and most of Russia have few or no records, though plague certainly reached them. Constantinople, one of the great plague cities, is absent. The inventory records that plague was present in a year, not how many died, so a year with a handful of cases counts the same as one that killed half a town. Some years in the source are approximate, and a few towns were placed by an automatic geocoder in the wrong place; I corrected five that were clearly wrong (Prague, Milan, Noja, Graz and Sciacca) and list them in the data.</p>
+<p class="pull">London has {{landmarks.london_n|int}} plague years in the record. Constantinople has none.</p>
+
+<h2><span class="n">08 · How I did this</span>Methods and caveats</h2>
+<p><b>Data.</b> The file published with Büntgen and others (2012) lists {{clean.n_raw|int}} rows of town, year and coordinates. Its latitude and longitude columns are swapped; I checked the fix against the file's own projected coordinates (ETRS89 LAEA), which agree to within a few metres for every row. Two rows for Eisleben were broken by a comma in the name and are repaired, one row with the year 9999 is dropped, and {{clean.n_dupe|int}} rows that repeat a town and year already listed are merged, leaving {{span.n_town_years|int}} town-years.</p>
+<p><b>Places.</b> Each town is placed in a modern country (Natural Earth) and one of eight regions. Modern borders are a convenience: in 1500 there was no Germany or Italy, and Algiers, Tunis, Tripoli, Cairo, Smyrna and Beirut were in the Ottoman world for most of the period.</p>
+<p><b>Measures.</b> An outbreak is a town-year. An episode joins consecutive outbreak years in a town; recurrence is the gap between episode starts. The first wave is every town whose first record falls in 1347 to 1353; distances are great-circle kilometres from Messina or from the nearest town infected in 1347, and speeds are slopes fitted by Theil-Sen and least squares. A region's end is shown three ways (the last record, the last year with three or more towns, and the year by which 95% of its records had happened), because a single late record can mislead.</p>
+<details><summary>Sources and licences</summary>
+<ul>
+<li>Büntgen U, Ginzler C, Esper J, Tegel W, McMichael AJ (2012) Digitizing historical plague. Clinical Infectious Diseases 55(11), 1586 to 1588. Data: EnviDat, doi:10.16904/envidat.181, Open Database Licence (ODbL) 1.0 with Database Contents Licence 1.0. The derived tables in data/ are shared under the ODbL.</li>
+<li>Biraben J-N (1975 to 1976) Les hommes et la peste en France et dans les pays européens et méditerranéens. Paris and The Hague: Mouton. The inventory the dataset digitises.</li>
+<li>Natural Earth countries and populated places (public domain).</li>
+<li>Base map tiles © Esri.</li>
+</ul></details>
+
+<div class="cta"><a class="p" href="https://doi.org/{{DOI}}">Read the paper</a><a href="https://github.com/Tristan-Hotham/plague-map">Data and code</a><a href="https://blog.tristanhotham.com/2026/10/31/plague-map/">Blog post</a><a href="https://blog.tristanhotham.com/">Blog home</a></div>
+
+<footer>
+<p>Dr Tristan Hotham, Independent researcher. ORCID <a href="https://orcid.org/0000-0003-4931-9349">0000-0003-4931-9349</a>.</p>
+<p>Cite as: Hotham, T. (2026) The plague years: five centuries of plague outbreaks in Europe and the Mediterranean, 1347 to 1900, from a digitised Biraben inventory. Zenodo. <a href="https://doi.org/{{DOI}}">https://doi.org/{{DOI}}</a></p>
+<p>Licence: derived data ODbL 1.0 (from the EnviDat dataset), text and figures CC BY 4.0, code MIT.</p>
+<p>I wrote the text, with drafting and editing assistance from Claude (Anthropic), which also helped prepare the analysis code. I reviewed and checked all text and results.</p>
+</footer>
+</div>
+<div class="tip" id="tip"></div>
+<button class="btn theme" id="theme" aria-label="Toggle dark mode">◐</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const R = /*RESULTS*/;
+const TOWNS = /*TOWNS*/;
+const WORLD = /*WORLD*/;
+const CITIES = /*CITIES*/;
+const REG = /*REGIONS*/;
+const fmt = n => n == null || n === "" ? "n/a" : Math.round(n).toLocaleString("en-GB");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const tip = document.getElementById("tip");
+function showTip(h, x, y) { tip.innerHTML = h; tip.style.display = "block"; const w = tip.offsetWidth; x = Math.max(w / 2 + 8, Math.min(innerWidth - w / 2 - 8, x)); tip.style.left = x + scrollX + "px"; tip.style.top = y + scrollY + "px"; }
+function hideTip() { tip.style.display = "none"; }
+document.addEventListener("click", hideTip);
+const NS = "http://www.w3.org/2000/svg";
+const el = (t, a, p) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; };
+const lbl = (svg, x, y, s, cls = "lab", anchor = "start") => { const t = el("text", { x, y, class: cls, "text-anchor": anchor }, svg); t.textContent = s; return t; };
+const redraws = [];
+function resp(box, render) { let last = 0; const go = force => { const w = Math.max(280, Math.round(box.clientWidth)); if (!force && Math.abs(w - last) < 4) return; last = w; box.innerHTML = ""; render(w, w < 560); }; new ResizeObserver(() => go()).observe(box); go(); redraws.push(() => go(true)); }
+const isDark = () => { const r = document.documentElement; return r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; };
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const small = () => innerWidth < 900;
+const tip2 = (e, h) => showTip(h, e.clientX, e.clientY);
+const S = { mode: "year", year: 1347, town: null, ciso: null, playing: false };
+
+/* towns: [name, english, lat, lon, iso, region index, [years], correction note] */
+const TN = TOWNS.map(t => ({ n: t[0], en: t[1], lat: t[2], lon: t[3], iso: t[4], r: t[5], ys: t[6], fix: t[7], set: new Set(t[6]) }));
+const label = t => t.en ? `${t.n} (${t.en})` : t.n;
+const label1 = t => t.en ? t.en.replace(/ \(.*\)$/, "") : t.n;
+const CNAME = {}; R.countries.forEach(c => CNAME[c.iso] = c.name);
+const BYYEAR = {}; TN.forEach(t => t.ys.forEach(y => (BYYEAR[y] = BYYEAR[y] || []).push(t)));
+const Y0 = 1347, Y1 = 1900;
+function episodes(ys) { const e = []; ys.forEach(y => { if (e.length && y - e[e.length - 1][1] === 1) e[e.length - 1][1] = y; else e.push([y, y]); }); return e; }
+
+/* hero mark: outbreak years per decade as a skyline */
+(function () {
+  const g = document.getElementById("heroMark"), D = R.decades, mx = Math.max(...D.map(d => d.n)), bw = 150 / D.length;
+  D.forEach((d, i) => { const h = 104 * d.n / mx; el("rect", { x: i * bw + .4, y: 110 - h, width: bw - .8, height: h, fill: d.d === 1340 ? "#A3241B" : "currentColor", opacity: d.d === 1340 ? 1 : .82 }, g); });
+  el("line", { x1: 0, x2: 150, y1: 110.5, y2: 110.5, stroke: "currentColor", "stroke-width": 1.5 }, g);
+})();
+
+/* ---------- map machinery ---------- */
+const ESRI = "https://server.arcgisonline.com/ArcGIS/rest/services/";
+const ESRI_ATT = 'Tiles &copy; Esri, HERE, Garmin, USGS, NGA, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, and the GIS user community';
+const LYDEF = { base: "plain", hills: true, hillK: 45, labels: false, labelK: 80, names: true, nameLvl: 1, cnames: true, borders: true, colour: 85, towns: true, trail: true, quiet: true, shade: true };
+const LY = { ...LYDEF };
+try { Object.assign(LY, JSON.parse(localStorage.getItem("plague_layers") || "{}")); } catch (e) {}
+const saveLY = () => { try { localStorage.setItem("plague_layers", JSON.stringify(LY)); } catch (e) {} };
+const HOME = () => small() ? [[30, -10], [60, 36]] : [[29, -11], [60, 38]];
+const map = L.map("map", { minZoom: 3, maxZoom: 12, maxBounds: [[15, -40], [72, 70]], zoomSnap: .5 });
+map.fitBounds(HOME());
+["hills:250", "fill:400", "labels:450", "pts:600", "names:620"].forEach(s => { const [n, z] = s.split(":"); map.createPane(n); map.getPane(n).style.zIndex = z; });
+["hills", "labels", "names"].forEach(n => map.getPane(n).style.pointerEvents = "none");
+const canvas = L.canvas({ pane: "pts", padding: .3, tolerance: 5 });
+let base = null, hills = null, labels = null; const names = L.layerGroup(), cnames = L.layerGroup();
+function setTiles() {
+  [base, labels, hills].forEach(l => { if (l) map.removeLayer(l); });
+  const t = isDark() ? "Dark" : "Light";
+  const url = LY.base === "relief" ? ESRI + "World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}" : LY.base === "satellite" ? ESRI + "World_Imagery/MapServer/tile/{z}/{y}/{x}" : `${ESRI}Canvas/World_${t}_Gray_Base/MapServer/tile/{z}/{y}/{x}`;
+  base = L.tileLayer(url, { maxZoom: 16, maxNativeZoom: LY.base === "relief" ? 13 : 16, attribution: ESRI_ATT }).addTo(map);
+  hills = L.tileLayer(ESRI + "Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}", { maxZoom: 16, maxNativeZoom: 16, pane: "hills" });
+  labels = L.tileLayer(`${ESRI}Canvas/World_${t}_Gray_Reference/MapServer/tile/{z}/{y}/{x}`, { maxZoom: 16, pane: "labels" });
+  applyLayers();
+}
+function applyLayers() {
+  if (!base) return;
+  if (LY.hills) { hills.addTo(map); hills.setOpacity(Math.min(1, .15 + LY.hillK / 120)); } else map.removeLayer(hills);
+  if (LY.labels) { labels.addTo(map); labels.setOpacity(LY.labelK / 100); } else map.removeLayer(labels);
+  if (LY.names) names.addTo(map); else map.removeLayer(names);
+  if (LY.cnames) cnames.addTo(map); else map.removeLayer(cnames);
+  restyle(); placeNames();
+}
+function placeNames() {
+  names.clearLayers(); cnames.clearLayers();
+  const z = map.getZoom(), bb = map.getBounds().pad(.05); const boxes = [];
+  if (LY.names) {
+    const minPop = [[4, 3e6], [5, 1.2e6], [6, 5e5], [7, 2.5e5], [99, 1.5e5]].find(([zz]) => z < zz + (LY.nameLvl === 2 ? 1.5 : LY.nameLvl === 0 ? -1 : 0))[1] * (LY.nameLvl === 0 ? 2 : 1);
+    let n = 0;
+    for (const c of CITIES) {
+      if (c.pop < minPop || !bb.contains([c.lat, c.lon])) continue;
+      const pt = map.latLngToContainerPoint([c.lat, c.lon]), big = c.pop >= 3e6;
+      const bx = [pt.x - 4, pt.y - 8, pt.x + 10 + c.name.length * (big ? 6.9 : 6.3), pt.y + 7];
+      if (boxes.some(o => bx[0] < o[2] && bx[2] > o[0] && bx[1] < o[3] && bx[3] > o[1])) continue;
+      boxes.push(bx); L.marker([c.lat, c.lon], { pane: "names", interactive: false, keyboard: false, icon: L.divIcon({ className: "cityL" + (big ? "" : " s"), html: `<i></i>${esc(c.name)}`, iconSize: null, iconAnchor: [3, 6] }) }).addTo(names);
+      if (++n >= 90) break;
+    }
+  }
+  if (LY.cnames && z >= 4 && z < 8) {
+    WORLD.features.forEach(f => { const c = CPOS[f.properties.iso]; if (!c || !bb.contains(c)) return; const nm = f.properties.n;
+      if (z < 5 && AREA[f.properties.iso] < 25) return; const pt = map.latLngToContainerPoint(c), w = nm.length * 7.2;
+      const bx = [pt.x - w / 2, pt.y - 7, pt.x + w / 2, pt.y + 7]; if (boxes.some(o => bx[0] < o[2] && bx[2] > o[0] && bx[1] < o[3] && bx[3] > o[1])) return; boxes.push(bx);
+      L.marker(c, { pane: "names", interactive: false, keyboard: false, icon: L.divIcon({ className: "cntL", html: esc(nm), iconSize: [w, 14], iconAnchor: [w / 2, 7] }) }).addTo(cnames); });
+  }
+}
+(function layerControl() {
+  const Ctl = L.Control.extend({ options: { position: "topright" }, onAdd() {
+    const d = L.DomUtil.create("div"); L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d);
+    d.innerHTML = `<button class="lyrBtn" aria-expanded="false">Map layers</button>
+<div class="lyrPanel" hidden>
+ <div class="row"><label style="font-weight:600">Base map</label><div class="sub"><select data-k="base" aria-label="Base map"><option value="plain">Plain grey</option><option value="relief">Shaded relief</option><option value="satellite">Satellite</option></select></div></div>
+ <div class="row"><label><input type="checkbox" data-k="hills"> Hills and mountains</label><div class="sub"><span>strength</span><input type="range" data-k="hillK" min="10" max="100" step="5" aria-label="Hill shading strength"></div></div>
+ <div class="row"><label><input type="checkbox" data-k="labels"> Map labels</label><div class="sub"><span>strength</span><input type="range" data-k="labelK" min="20" max="100" step="5" aria-label="Map label strength"></div></div>
+ <div class="row"><label><input type="checkbox" data-k="names"> Bold city names (today)</label><div class="sub"><span>how many</span><select data-k="nameLvl" aria-label="How many city names"><option value="0">Biggest only</option><option value="1">Some</option><option value="2">Lots</option></select></div></div>
+ <div class="row"><label><input type="checkbox" data-k="cnames"> Country names (today)</label></div>
+ <div class="row"><label><input type="checkbox" data-k="borders"> Borders (today)</label></div>
+ <div class="row"><label style="font-weight:600">Colour</label><div class="sub"><span>strength</span><input type="range" data-k="colour" min="20" max="100" step="5" aria-label="Colour strength"></div></div>
+ <div class="hd">Plague</div>
+ <div class="row"><label><input type="checkbox" data-k="towns"> Plague towns</label></div>
+ <div class="row"><label><input type="checkbox" data-k="trail"> Fading trail of the last 10 years</label><div class="sub">year by year view</div></div>
+ <div class="row"><label><input type="checkbox" data-k="quiet"> Towns without plague that year</label><div class="sub">year by year view</div></div>
+ <div class="row"><label><input type="checkbox" data-k="shade"> Countries shaded by last outbreak</label><div class="sub">last outbreak view</div></div>
+ <button class="reset">Reset layers</button>
+</div>`;
+    return d; } });
+  map.addControl(new Ctl());
+  const box = map.getContainer(), btn = box.querySelector(".lyrBtn"), pan = box.querySelector(".lyrPanel");
+  btn.onclick = () => { const o = pan.hidden; pan.hidden = !o; btn.setAttribute("aria-expanded", o); };
+  const sync = () => pan.querySelectorAll("[data-k]").forEach(i => { const k = i.dataset.k; if (i.type === "checkbox") i.checked = LY[k]; else i.value = LY[k]; });
+  pan.querySelectorAll("[data-k]").forEach(i => i.addEventListener(i.type === "range" ? "input" : "change", () => {
+    const k = i.dataset.k; LY[k] = i.type === "checkbox" ? i.checked : (k === "base" ? i.value : +i.value);
+    if (k === "hillK") LY.hills = true; if (k === "labelK") LY.labels = true; if (k === "nameLvl") LY.names = true;
+    sync(); saveLY(); if (k === "base") setTiles(); else { applyLayers(); legend(); }
+  }));
+  pan.querySelector(".reset").onclick = () => { Object.assign(LY, LYDEF); saveLY(); sync(); setTiles(); legend(); };
+  sync();
+})();
+const Note = L.Control.extend({ options: { position: innerWidth < 600 ? "topleft" : "bottomleft" }, onAdd() { const d = L.DomUtil.create("div", "mapnote"); d.id = "mapnote"; L.DomEvent.disableClickPropagation(d); return d; } });
+map.addControl(new Note());
+L.control.scale({ imperial: false, position: "bottomright" }).addTo(map);
+
+/* ---------- countries ---------- */
+const CPOS = {}, AREA = {};
+WORLD.features.forEach(f => { const b = L.geoJSON(f).getBounds(); CPOS[f.properties.iso] = b.getCenter(); AREA[f.properties.iso] = (b.getNorth() - b.getSouth()) * (b.getEast() - b.getWest()); });
+Object.assign(CPOS, { FRA: L.latLng(46.6, 2.4), NOR: L.latLng(61.5, 9), RUS: L.latLng(56, 40), ESP: L.latLng(40, -3.6), GBR: L.latLng(52.8, -1.6), ITA: L.latLng(43.2, 12.2), GRC: L.latLng(39.4, 22), HRV: L.latLng(45.4, 16) });
+const CLAST = {}; R.countries.forEach(c => CLAST[c.iso] = c);
+const LBINS = [[1347, 1499, "before 1500"], [1500, 1599, "1500s"], [1600, 1649, "1600 to 1649"], [1650, 1699, "1650 to 1699"], [1700, 1749, "1700 to 1749"], [1750, 1799, "1750 to 1799"], [1800, 1900, "1800 or later"]];
+const LCOL = ["#2F4B7C", "#4D78A8", "#88A9C9", "#E6C36A", "#E58E3A", "#C4421F", "#7A0F12"];
+const lastCol = y => { const i = LBINS.findIndex(b => y >= b[0] && y <= b[1]); return LCOL[i]; };
+const WAVEC = { 1347: "#5A0A0E", 1348: "#A3241B", 1349: "#E0682F", 1350: "#EBA542", 1351: "#C8B65A", 1352: "#8FA88A", 1353: "#5F8A9A" };
+function cStyle(f) {
+  const iso = f.properties.iso, land = css("--land"), bd = css("--border") || "#999";
+  let fill = null;
+  if (S.mode === "last" && LY.shade && CLAST[iso]) fill = lastCol(CLAST[iso].last);
+  const sel = iso === S.ciso;
+  return { color: sel ? css("--fg") : bd, weight: LY.borders ? (sel ? 2.2 : .6) : (sel ? 2 : 0), fillColor: fill || land, fillOpacity: (fill ? .45 : .35) * LY.colour / 100 };
+}
+const cLayer = L.geoJSON(WORLD, { pane: "fill", style: cStyle, onEachFeature: (f, l) => {
+  l.on("click", () => pickCountry(f.properties.iso, false));
+  l.on("mousemove", e => { const r = map.getContainer().getBoundingClientRect(); const c = CLAST[f.properties.iso]; showTip(`<b>${esc(f.properties.n)}</b><br>${c ? `${fmt(c.n)} outbreak years in ${fmt(c.towns)} towns<br>last ${c.last}` : "No towns in the inventory"}`, r.left + e.containerPoint.x, r.top + e.containerPoint.y); });
+  l.on("mouseout", hideTip);
+} }).addTo(map);
+
+/* ---------- state ---------- */
+const MODES = [["year", "Year by year"], ["wave", "Black Death, 1347 to 1353"], ["last", "Last outbreak"], ["often", "How often"]];
+const ptLayer = L.layerGroup().addTo(map);
+function townTip(t) {
+  let extra = "";
+  if (S.mode === "year") extra = t.set.has(S.year) ? `plague in ${S.year}` : (() => { const p = t.ys.filter(y => y < S.year); return p.length ? `last before: ${p[p.length - 1]}` : "no plague yet"; })();
+  else if (S.mode === "wave") extra = t.ys[0] <= 1353 ? `first recorded ${t.ys[0]}` : `first recorded ${t.ys[0]}`;
+  else if (S.mode === "last") extra = `last recorded ${t.ys[t.ys.length - 1]}`;
+  else extra = `${t.ys.length} outbreak year${t.ys.length === 1 ? "" : "s"}`;
+  return `<b>${esc(label(t))}</b><br>${esc(CNAME[t.iso] || "")} · ${extra}`;
+}
+function addPt(t, o) {
+  L.circleMarker([t.lat, t.lon], Object.assign({ renderer: canvas }, o)).on("click", e => { L.DomEvent.stopPropagation(e); pickTown(t, false); })
+    .on("mouseover", e => { const r = map.getContainer().getBoundingClientRect(); showTip(townTip(t), r.left + e.containerPoint.x, r.top + e.containerPoint.y); }).on("mouseout", hideTip).addTo(ptLayer);
+}
+function drawPts() {
+  ptLayer.clearLayers();
+  if (!LY.towns) return;
+  const z = map.getZoom(), k = Math.max(.8, Math.min(1.8, (z - 3) / 2.2 + .8)), stroke = isDark() ? "#111" : "#fff", hot = isDark() ? "#FF5A47" : "#B01E14", alpha = LY.colour / 100;
+  if (S.mode === "year") {
+    const y = S.year, quiet = [], trail = [], now = [];
+    for (const t of TN) {
+      if (t.set.has(y)) { now.push(t); continue; }
+      let last = null; for (const v of t.ys) { if (v < y) last = v; else break; }
+      if (LY.trail && last != null && y - last <= 10) trail.push([t, y - last]);
+      else if (LY.quiet && last != null) quiet.push(t);
+    }
+    quiet.forEach(t => addPt(t, { radius: 1.6 * k, weight: 0, fillColor: isDark() ? "#8a8075" : "#8C8073", fillOpacity: .45 * alpha }));
+    trail.sort((a, b) => b[1] - a[1]).forEach(([t, d]) => addPt(t, { radius: (2.2 + 2.2 * (10 - d) / 10) * k, weight: 0, fillColor: hot, fillOpacity: (.12 + .5 * (10 - d) / 10) * alpha }));
+    now.forEach(t => addPt(t, { radius: 5.2 * k, weight: 1.2, color: stroke, fillColor: hot, fillOpacity: alpha }));
+  } else if (S.mode === "wave") {
+    TN.filter(t => t.ys[0] > 1353).forEach(t => addPt(t, { radius: 1.4 * k, weight: 0, fillColor: "#8C8073", fillOpacity: .35 * alpha }));
+    TN.filter(t => t.ys[0] <= 1353).sort((a, b) => b.ys[0] - a.ys[0]).forEach(t => addPt(t, { radius: 4.6 * k, weight: 1, color: stroke, fillColor: WAVEC[t.ys[0]], fillOpacity: alpha }));
+  } else if (S.mode === "last") {
+    TN.slice().sort((a, b) => a.ys[a.ys.length - 1] - b.ys[b.ys.length - 1]).forEach(t => addPt(t, { radius: 3.6 * k, weight: .8, color: stroke, fillColor: lastCol(t.ys[t.ys.length - 1]), fillOpacity: alpha }));
+  } else {
+    TN.slice().sort((a, b) => b.ys.length - a.ys.length).forEach(t => addPt(t, { radius: Math.max(1.8, Math.sqrt(t.ys.length) * 1.55) * k, weight: .8, color: stroke, fillColor: REG[t.r][2], fillOpacity: .8 * alpha }));
+  }
+  if (S.town) L.circleMarker([S.town.lat, S.town.lon], { renderer: canvas, radius: 10 * k, weight: 2.4, color: css("--fg"), fill: false, interactive: false }).addTo(ptLayer);
+}
+function restyle() { cLayer.setStyle(cStyle); drawPts(); }
+map.on("zoomend moveend", () => { placeNames(); drawPts(); });
+
+/* ---------- time bar ---------- */
+const yr = document.getElementById("yr"), yrLab = document.getElementById("yrLab"), playBtn = document.getElementById("play");
+const spark = document.getElementById("spark");
+function drawSpark() {
+  spark.innerHTML = ""; const W = 1000, H = 34, mx = Math.max(...Object.values(R.years));
+  spark.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  for (let y = Y0; y <= Y1; y++) { const n = R.years[y] || 0; if (!n) continue; const x = (y - Y0) / (Y1 - Y0) * W, h = Math.max(1, (H - 2) * Math.sqrt(n / mx));
+    el("rect", { x, y: H - h, width: W / (Y1 - Y0 + 1) + .3, height: h, fill: css("--muted"), opacity: .55 }, spark); }
+  const x = (S.year - Y0) / (Y1 - Y0) * W; el("rect", { x: x - 1.5, y: 0, width: 4, height: H, fill: css("--hot") }, spark);
+}
+function setYear(y, fromSlider) {
+  S.year = Math.max(Y0, Math.min(Y1, y)); if (!fromSlider) yr.value = S.year;
+  const n = (BYYEAR[S.year] || []).length;
+  yrLab.innerHTML = `${S.year}<small>${n ? n + " town" + (n === 1 ? "" : "s") : "no records"}</small>`;
+  drawSpark(); drawPts();
+  if (S.town) side(); else if (S.mode === "year") side();
+  const ev = EVENTS[S.year]; note(ev ? `<b>${S.year}</b>: ${ev}` : "");
+}
+const EVENTS = { 1347: "plague reaches Messina and the Sicilian ports", 1348: "the Black Death across the Mediterranean, France and England", 1349: "Paris, the Alps and the German lands", 1350: "on to the Baltic", 1361: "the second great wave", 1630: "the busiest year in the record: northern Italy and France", 1656: "plague in Naples, Rome and Genoa", 1665: "the Great Plague of London", 1666: "Eyam and the Great Plague's second year", 1679: "plague in Vienna", 1713: "Prague, Hamburg and Bremen", 1720: "the Great Plague of Marseille", 1743: "Messina is struck again", 1815: "Noja (Noicattaro) near Bari", 1819: "Mallorca", 1899: "Porto: the third pandemic arrives by sea" };
+let timer = null; let SPEED = 160;
+function play(on) {
+  S.playing = on; playBtn.setAttribute("aria-label", on ? "Pause" : "Play");
+  document.getElementById("playIcon").innerHTML = on ? '<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>' : '<path d="M7 4l13 8-13 8z"/>';
+  clearInterval(timer);
+  if (on) { if (S.mode !== "year") setMode("year"); if (S.year >= Y1) setYear(Y0); timer = setInterval(() => { if (S.year >= Y1) { play(false); return; } let y = S.year + 1; if (y > 1680) while (y < Y1 && !BYYEAR[y]) y++; setYear(y); }, SPEED); }
+}
+playBtn.onclick = () => play(!S.playing);
+yr.addEventListener("input", () => { if (S.playing) play(false); setYear(+yr.value, true); });
+(function speeds() { const row = document.getElementById("speed"); [["Slow", 420], ["Normal", 160], ["Fast", 60]].forEach(([l, ms]) => { const b = document.createElement("button"); b.className = "btn"; b.textContent = l; b.setAttribute("aria-pressed", ms === SPEED); b.onclick = () => { SPEED = ms; row.querySelectorAll(".btn").forEach(x => x.setAttribute("aria-pressed", x === b)); if (S.playing) play(true); }; row.appendChild(b); }); })();
+
+/* ---------- legend, side panel ---------- */
+function legend() {
+  const e = document.getElementById("legend"); let h = "";
+  const hot = isDark() ? "#FF5A47" : "#B01E14";
+  if (S.mode === "year") h = `<span><i style="background:${hot}"></i>plague recorded this year</span>` + (LY.trail ? `<span><i style="background:${hot};opacity:.45"></i>in the last 10 years (fading)</span>` : "") + (LY.quiet ? `<span><i style="background:#8C8073;opacity:.5;width:8px;height:8px"></i>earlier outbreak</span>` : "");
+  else if (S.mode === "wave") h = Object.entries(WAVEC).filter(([y]) => R.wave.by_year[y]).map(([y, c]) => `<span><i style="background:${c}"></i>${y} (${R.wave.by_year[y]})</span>`).join("") + `<span><i style="background:#8C8073;opacity:.4;width:8px;height:8px"></i>first record later</span>`;
+  else if (S.mode === "last") h = LBINS.map((b, i) => `<span><i style="background:${LCOL[i]}"></i>${b[2]}</span>`).join("") + `<span>last recorded outbreak${LY.shade ? "; countries shaded the same way" : ""}</span>`;
+  else h = REG.map(r => `<span><i style="background:${r[2]}"></i>${esc(r[1])}</span>`).join("") + `<span>dot area: number of outbreak years</span>`;
+  e.innerHTML = h;
+}
+function note(h) { document.getElementById("mapnote").innerHTML = h || ""; }
+function yearsHTML(t) { return `<div class="yrs">` + t.ys.map(y => `<span data-y="${y}" class="${y === S.year && S.mode === "year" ? "on" : ""}" title="Show ${y}">${y}</span>`).join("") + `</div>`; }
+function side() {
+  const box = document.getElementById("side"); let h = "";
+  if (S.town) {
+    const t = S.town, e = episodes(t.ys), gaps = e.slice(1).map((x, i) => x[0] - e[i][0]);
+    const med = gaps.length ? gaps.slice().sort((a, b) => a - b)[Math.floor((gaps.length - 1) / 2)] : null;
+    h = `<button class="back">Back</button><h4>Town</h4><div class="big">${esc(t.n)}</div>${t.en ? `<p class="sub">${esc(t.en)}</p>` : ""}<p class="sub"><span class="go" data-c="${t.iso}">${esc(CNAME[t.iso] || t.iso)}</span> · ${esc(REG[t.r][1])}</p>
+<table><tr><td>Outbreak years</td><td class="num">${t.ys.length}</td></tr><tr><td>First recorded</td><td class="num">${t.ys[0]}</td></tr><tr><td>Last recorded</td><td class="num">${t.ys[t.ys.length - 1]}</td></tr><tr><td>Episodes</td><td class="num">${e.length}</td></tr>${med != null ? `<tr><td>Median gap</td><td class="num">${med} years</td></tr>` : ""}</table>
+<h4>Years with plague recorded</h4>${yearsHTML(t)}<p class="sub">Click a year to see it on the map.</p>${t.fix ? `<p class="sub">Position corrected: ${esc(t.fix)}.</p>` : ""}`;
+    note(`<b>${esc(label1(t))}</b>: ${t.ys.length} outbreak year${t.ys.length === 1 ? "" : "s"}, ${t.ys[0]} to ${t.ys[t.ys.length - 1]}`);
+  } else if (S.ciso) {
+    const c = CLAST[S.ciso], nm = (WORLD.features.find(f => f.properties.iso === S.ciso) || { properties: { n: S.ciso } }).properties.n;
+    h = `<h4>Country (today's borders)</h4><div class="big">${esc(nm)}</div>`;
+    if (!c) h += `<p class="sub">No towns from here in the inventory. That does not mean there was no plague: see section 07.</p>`;
+    else { const ts = TN.filter(t => t.iso === S.ciso).sort((a, b) => b.ys.length - a.ys.length);
+      h += `<table><tr><td>Outbreak years</td><td class="num">${fmt(c.n)}</td></tr><tr><td>Towns</td><td class="num">${fmt(c.towns)}</td></tr><tr><td>First recorded</td><td class="num">${c.first}</td></tr><tr><td>Last recorded</td><td class="num">${c.last}</td></tr>${c.last_wide ? `<tr><td>Last year with 3+ towns</td><td class="num">${c.last_wide}</td></tr>` : ""}</table><p class="sub">Last record: ${esc(c.last_towns.join(", "))}, ${c.last}.</p>
+<h4>Towns with most outbreak years</h4><table>` + ts.slice(0, 12).map(t => `<tr><td><span class="go" data-t="${esc(t.n)}">${esc(label1(t))}</span></td><td class="num">${t.ys.length}</td></tr>`).join("") + `</table>`; }
+  } else if (S.mode === "year") {
+    const now = (BYYEAR[S.year] || []).slice().sort((a, b) => b.ys.length - a.ys.length);
+    h = `<h4>Year by year</h4><div class="big">${S.year}</div><p class="sub">${now.length ? `Plague recorded in ${now.length} town${now.length === 1 ? "" : "s"}` : "No outbreaks recorded this year"}${EVENTS[S.year] ? ": " + esc(EVENTS[S.year]) : ""}.</p>`;
+    if (now.length) h += `<table>` + now.slice(0, 30).map(t => `<tr><td><span class="go" data-t="${esc(t.n)}">${esc(label1(t))}</span></td><td class="num"><small>${esc(CNAME[t.iso] || "")}</small></td></tr>`).join("") + `</table>${now.length > 30 ? `<p class="sub">and ${now.length - 30} more</p>` : ""}`;
+    else h += `<p>Press play, drag the slider, or click a town.</p>`;
+  } else if (S.mode === "wave") {
+    h = `<h4>The Black Death</h4><div class="big">1347 to 1353</div><p>${fmt(R.wave.n)} towns have their first recorded outbreak in these years. Colour shows the year: ${Object.entries(R.wave.by_year).filter(([, n]) => n).map(([y, n]) => `${y}: ${n}`).join(", ")}.</p><p class="sub">Grey dots are towns first recorded later. Years are the first surviving record, not the day plague arrived.</p>`;
+  } else if (S.mode === "last") {
+    h = `<h4>Last recorded outbreak</h4><div class="big">When plague left</div><p>Each town is coloured by the last year plague was recorded there${LY.shade ? ", and each country by the last year anywhere in it" : ""}. Blue went quiet early; red lasted longest.</p><table>` + R.regions.map(r => `<tr><td><span class="sw" style="background:${r.col}"></span>${esc(r.name)}</td><td class="num">${r.last_wide}</td></tr>`).join("") + `</table><p class="sub">Last year with plague in three or more towns of each region.</p>`;
+  } else {
+    h = `<h4>How often</h4><div class="big">Outbreak years per town</div><p>Dot area shows how many years plague was recorded in each town. London leads with ${R.top_towns[0].n}, then ${esc(R.top_towns.slice(1, 4).map(t => (t.en || t.town).replace(/ \(.*\)$/, "") + " " + t.n).join(", "))}.</p><p class="sub">${fmt(R.towns_n1)} towns (${Math.round(R.towns_n1_pct)}%) have a single outbreak year.</p>`;
+  }
+  box.innerHTML = h;
+  const b = box.querySelector(".back"); if (b) b.onclick = () => { S.town = null; side(); drawPts(); note(""); };
+  box.querySelectorAll("[data-y]").forEach(e => e.onclick = () => { if (S.mode !== "year") setMode("year"); setYear(+e.dataset.y); });
+  box.querySelectorAll("[data-t]").forEach(e => e.onclick = () => pickTown(TN.find(t => t.n === e.dataset.t), true));
+  box.querySelectorAll("[data-c]").forEach(e => e.onclick = () => { S.town = null; pickCountry(e.dataset.c, true); });
+}
+function toMap() { if (small()) document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" }); }
+function pickTown(t, move) { if (!t) return; S.town = t; S.ciso = t.iso; if (move) { map.setView([t.lat, t.lon], Math.max(map.getZoom(), 7)); toMap(); } restyle(); side(); }
+function pickCountry(iso, move) { S.ciso = iso; S.town = null; if (move) { const f = WORLD.features.find(x => x.properties.iso === iso); if (f) map.fitBounds(FITS[iso] || L.geoJSON(f).getBounds(), { padding: [10, 10], maxZoom: 7 }); toMap(); } restyle(); side(); note(""); }
+const FITS = { FRA: [[42.2, -5], [51.2, 8.4]], RUS: [[53, 26], [61, 42]], GBR: [[49.9, -8.2], [58.9, 1.8]], NOR: [[58, 5], [64, 25]], ESP: [[36, -9.5], [43.9, 4.3]], PRT: [[36.9, -9.6], [42.2, -6.1]], ITA: [[36.6, 6.6], [47.1, 18.6]], DZA: [[34.5, -2], [37.2, 9]], LBY: [[30, 10], [33.5, 25]], EGY: [[29.5, 25], [31.8, 32.5]], TUR: [[36, 26], [42, 36]] };
+const ZONES = { all: null, brit: [[50, -8.5], [58.8, 1.9]], fra: [[42.2, -5], [51.2, 8.4]], ita: [[36.6, 6.6], [47.1, 18.6]], ibe: [[36, -9.6], [43.9, 4.3]], cen: [[45.8, 5.8], [54.9, 17.2]], east: [[49, 14], [60.5, 30]], magh: [[30, -6], [37.5, 23]], otto: [[29.5, 25], [40, 37]], prov: [[42.9, 3.2], [45.2, 7.3]] };
+function setMode(m) {
+  S.mode = m; document.querySelectorAll("#modeTabs .btn").forEach(b => b.setAttribute("aria-pressed", b.dataset.m === m));
+  document.getElementById("timebar").hidden = m !== "year"; if (m !== "year" && S.playing) play(false);
+  restyle(); legend(); side(); if (m !== "year") note("");
+}
+(function tabs() {
+  const row = document.getElementById("modeTabs");
+  MODES.forEach(([k, l]) => { const b = document.createElement("button"); b.className = "btn"; b.dataset.m = k; b.textContent = l; b.setAttribute("aria-pressed", k === S.mode); b.onclick = () => setMode(k); row.appendChild(b); });
+  const fr = document.getElementById("focusRow");
+  [["all", "Everywhere"], ["brit", "Britain"], ["fra", "France"], ["ibe", "Iberia"], ["ita", "Italy"], ["cen", "Central Europe"], ["east", "Poland and Baltic"], ["magh", "North Africa"], ["otto", "Eastern Mediterranean"]].forEach(([k, l]) => {
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = l; b.onclick = () => { S.town = null; S.ciso = null; map.fitBounds(ZONES[k] || HOME()); restyle(); side(); toMap(); }; fr.appendChild(b); });
+})();
+document.querySelectorAll("[data-mode],[data-year]").forEach(a => a.onclick = e => { e.preventDefault(); S.town = null; S.ciso = null;
+  if (a.dataset.mode) setMode(a.dataset.mode); if (a.dataset.year) { setMode("year"); setYear(+a.dataset.year); }
+  document.getElementById("atlas").scrollIntoView({ behavior: "smooth" }); setTimeout(() => map.fitBounds(ZONES[a.dataset.fit] || HOME()), 350); });
+
+/* ---------- search ---------- */
+(function search() {
+  const inp = document.getElementById("q"), sug = document.getElementById("sug"); let opts = [], k = -1;
+  const nz = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  function build(q) {
+    const nq = nz(q); if (nq.length < 2) return [];
+    const out = [];
+    TN.forEach(t => { const a = nz(t.n), b = nz(t.en || ""); if (a.includes(nq) || b.includes(nq)) out.push({ t: "t", town: t, s: (a.startsWith(nq) || b.startsWith(nq) ? 2 : 1) + Math.min(t.ys.length, 100) / 100 }); });
+    WORLD.features.forEach(f => { const n = f.properties.n; if (nz(n).includes(nq)) out.push({ t: "c", iso: f.properties.iso, n, s: nz(n).startsWith(nq) ? 3 : 1.2 }); });
+    return out.sort((a, b) => b.s - a.s).slice(0, 12);
+  }
+  const lab = o => o.t === "c" ? `${esc(o.n)} <span>country</span>` : `${esc(label(o.town))} <span>${esc(CNAME[o.town.iso] || "")}, ${o.town.ys.length} year${o.town.ys.length === 1 ? "" : "s"}</span>`;
+  const show = () => { sug.innerHTML = opts.map((o, i) => `<li role="option" aria-selected="${i === k}" data-i="${i}">${lab(o)}</li>`).join(""); sug.style.display = opts.length ? "block" : "none"; };
+  const choose = o => { sug.style.display = "none"; inp.value = o.t === "c" ? o.n : label(o.town); inp.blur(); if (o.t === "c") pickCountry(o.iso, true); else pickTown(o.town, true); };
+  inp.addEventListener("input", () => { opts = build(inp.value); k = -1; show(); });
+  inp.addEventListener("keydown", e => { if (e.key === "ArrowDown") { k = Math.min(opts.length - 1, k + 1); show(); e.preventDefault(); } else if (e.key === "ArrowUp") { k = Math.max(0, k - 1); show(); e.preventDefault(); } else if (e.key === "Enter" && opts.length) { choose(opts[Math.max(0, k)]); } else if (e.key === "Escape") { sug.style.display = "none"; } });
+  sug.addEventListener("click", e => { const li = e.target.closest("li"); if (li) choose(opts[+li.dataset.i]); });
+  document.addEventListener("click", e => { if (!e.target.closest(".searchbox")) sug.style.display = "none"; });
+})();
+
+/* ---------- charts ---------- */
+function hbars(box, rows, opts) {
+  resp(box, (w, sm) => {
+    const lw = sm ? Math.min(150, w * .44) : Math.min(230, w * .42), rh = 26, h = rows.length * rh + 10, x0 = lw, x1 = w - 46, max = Math.max(...rows.map(r => r.v)) || 1;
+    const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": opts.aria }, box);
+    rows.forEach((r, i) => {
+      const y = 4 + i * rh, bw = Math.max(2, (x1 - x0) * r.v / max), cut = sm ? 19 : 30;
+      const t = lbl(svg, x0 - 8, y + 16, r.n.length > cut ? r.n.slice(0, cut - 1) + "." : r.n, "lab", "end");
+      const b = el("rect", { x: x0, y: y + 3, width: bw, height: rh - 9, fill: r.c, rx: 2 }, svg);
+      lbl(svg, x0 + bw + 6, y + 16, r.lab ?? fmt(r.v), "lab b");
+      [b, t].forEach(e => { if (r.tip) { e.addEventListener("mousemove", ev => tip2(ev, r.tip)); e.addEventListener("mouseleave", hideTip); } if (r.click) { e.style.cursor = "pointer"; e.addEventListener("click", ev => { ev.stopPropagation(); r.click(); }); } });
+    });
+  });
+}
+const RC = k => (REG.find(r => r[0] === k) || [0, 0, "#888"])[2];
+const RI = k => REG.findIndex(r => r[0] === k);
+(function charts() {
+  /* decades, stacked by region */
+  const box = document.getElementById("decChart");
+  resp(box, (w, sm) => {
+    const D = R.decades, h = sm ? 230 : 280, x0 = 38, x1 = w - 6, y0 = 14, y1 = h - 26, mx = Math.max(...D.map(d => d.n)), bw = (x1 - x0) / D.length;
+    const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": "Outbreak years per decade by region" }, box);
+    const step = mx > 400 ? 200 : 100;
+    for (let v = 0; v <= mx; v += step) { const y = y1 - (y1 - y0) * v / mx; el("line", { x1: x0, x2: x1, y1: y, y2: y, stroke: css("--rule") }, svg); lbl(svg, x0 - 6, y + 4, fmt(v), "lab s m", "end"); }
+    D.forEach((d, i) => { let acc = 0; const x = x0 + i * bw;
+      REG.forEach(r => { const v = d.reg[r[0]] || 0; if (!v) return; const hh = (y1 - y0) * v / mx; el("rect", { x: x + .5, y: y1 - (y1 - y0) * acc / mx - hh, width: Math.max(1, bw - 1), height: hh, fill: r[2] }, svg); acc += v; });
+      const hit = el("rect", { x, y: y0, width: bw, height: y1 - y0, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", ev => tip2(ev, `<b>${d.d}s</b>: ${fmt(d.n)} outbreak years in ${fmt(d.towns)} towns<br>` + REG.filter(r => d.reg[r[0]]).map(r => `${esc(r[1])} ${d.reg[r[0]]}`).join("<br>"))); hit.addEventListener("mouseleave", hideTip);
+      if (d.d % 50 === 0 && (!sm || d.d % 100 === 0)) lbl(svg, x + bw / 2, h - 8, d.d, "lab s m", "middle"); });
+  });
+  document.getElementById("decLeg").innerHTML = REG.map(r => `<span><i class="sq" style="background:${r[2]}"></i>${esc(r[1])}</span>`).join("");
+
+  /* first wave strip plot */
+  resp(document.getElementById("waveChart"), (w, sm) => {
+    const W = TN.filter(t => t.ys[0] <= 1353), ys = [1347, 1348, 1349, 1350, 1351, 1352], h = sm ? 300 : 340, x0 = 50, x1 = w - 10, y0 = 10, y1 = h - 30, mk = 2600;
+    const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": "First recorded outbreak year and distance from Messina for the first wave" }, document.getElementById("waveChart"));
+    const cw = (x1 - x0) / ys.length, M = TN.find(t => t.n === "Messina");
+    const km = t => { const r = Math.PI / 180, a = Math.sin((t.lat - M.lat) * r / 2) ** 2 + Math.cos(t.lat * r) * Math.cos(M.lat * r) * Math.sin((t.lon - M.lon) * r / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(a)); };
+    for (let v = 0; v <= mk; v += 500) { const y = y1 - (y1 - y0) * v / mk; el("line", { x1: x0, x2: x1, y1: y, y2: y, stroke: css("--rule") }, svg); lbl(svg, x0 - 6, y + 4, fmt(v), "lab s m", "end"); }
+    lbl(svg, x0 - 6, y0 - 0, "km", "lab s m", "end");
+    ys.forEach((y, i) => lbl(svg, x0 + cw * (i + .5), h - 10, y, "lab s", "middle"));
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    W.forEach(t => { const i = ys.indexOf(t.ys[0]); if (i < 0) return; const d = km(t), x = x0 + cw * (i + .5) + (rnd() - .5) * cw * .7, y = y1 - (y1 - y0) * d / mk;
+      const c = el("circle", { cx: x, cy: y, r: sm ? 3 : 3.6, fill: WAVEC[t.ys[0]], stroke: isDark() ? "#111" : "#fff", "stroke-width": .6, opacity: .9 }, svg);
+      c.addEventListener("mousemove", ev => tip2(ev, `<b>${esc(label(t))}</b><br>${t.ys[0]} · ${fmt(d)} km from Messina`)); c.addEventListener("mouseleave", hideTip); c.style.cursor = "pointer"; c.addEventListener("click", ev => { ev.stopPropagation(); setMode("wave"); pickTown(t, true); document.getElementById("atlas").scrollIntoView({ behavior: "smooth" }); }); });
+  });
+
+  /* top towns */
+  hbars(document.getElementById("topChart"), R.top_towns.map(t => { const tt = TN.find(x => x.n === t.town); return { n: (t.en || t.town).replace(/ \(.*\)$/, ""), v: t.n, c: REG[tt.r][2], tip: `<b>${esc(t.en ? t.town + " (" + t.en + ")" : t.town)}</b><br>${esc(t.country)} · ${t.n} years, ${t.first} to ${t.last}`, click: () => { setMode("often"); pickTown(tt, true); document.getElementById("atlas").scrollIntoView({ behavior: "smooth" }); } }; }), { aria: "Towns with most outbreak years" });
+
+  /* intervals histogram */
+  resp(document.getElementById("ivChart"), (w, sm) => {
+    const Hh = R.recur.hist, ks = Object.keys(Hh).map(Number).sort((a, b) => a - b), h = sm ? 210 : 240, x0 = 38, x1 = w - 6, y0 = 10, y1 = h - 26, mx = Math.max(...ks.map(k => Hh[k])), bw = (x1 - x0) / ks.length;
+    const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": "Histogram of years between outbreaks" }, document.getElementById("ivChart"));
+    for (let v = 0; v <= mx; v += 100) { const y = y1 - (y1 - y0) * v / mx; el("line", { x1: x0, x2: x1, y1: y, y2: y, stroke: css("--rule") }, svg); lbl(svg, x0 - 6, y + 4, v, "lab s m", "end"); }
+    ks.forEach((k, i) => { const v = Hh[k], hh = (y1 - y0) * v / mx, x = x0 + i * bw;
+      const r = el("rect", { x: x + .6, y: y1 - hh, width: bw - 1.2, height: hh, fill: k >= 60 ? css("--muted") : (k <= R.recur.median && R.recur.median < k + 2 ? css("--hot") : "#C9784F") }, svg);
+      r.addEventListener("mousemove", ev => tip2(ev, k >= 60 ? `<b>60 years or more</b>: ${v}` : `<b>${k === 0 ? 1 : k} to ${k + 1} years</b>: ${v} gaps`)); r.addEventListener("mouseleave", hideTip);
+      if (k % 10 === 0) lbl(svg, x + bw / 2, h - 8, k >= 60 ? "60+" : k, "lab s m", "middle"); });
+    lbl(svg, x1, y0 + 12, `median ${R.recur.median} years`, "lab s b", "end");
+  });
+
+  /* region end chart */
+  resp(document.getElementById("endChart"), (w, sm) => {
+    const rows = R.regions, lw = sm ? 128 : 220, rh = sm ? 40 : 34, h = rows.length * rh + 34, x0 = lw, x1 = w - 12, a = 1340, b = 1910, X = y => x0 + (x1 - x0) * (y - a) / (b - a);
+    const svg = el("svg", { viewBox: `0 0 ${w} ${h}`, role: "img", "aria-label": "When plague left each region" }, document.getElementById("endChart"));
+    for (let y = 1400; y <= 1900; y += 100) { el("line", { x1: X(y), x2: X(y), y1: 0, y2: h - 24, stroke: css("--rule") }, svg); lbl(svg, X(y), h - 8, y, "lab s m", "middle"); }
+    rows.forEach((r, i) => { const y = 14 + i * rh;
+      const words = r.name.split(" "); if (sm && r.name.length > 16) { let a1 = "", a2 = ""; words.forEach(wd => { if ((a1 + " " + wd).trim().length <= 16 && !a2) a1 = (a1 + " " + wd).trim(); else a2 = (a2 + " " + wd).trim(); }); lbl(svg, x0 - 8, y - 2, a1, "lab s", "end"); lbl(svg, x0 - 8, y + 11, a2, "lab s", "end"); } else lbl(svg, x0 - 8, y + 4, r.name, sm ? "lab s" : "lab", "end");
+      el("line", { x1: X(r.first), x2: X(r.last), y1: y, y2: y, stroke: r.col, "stroke-width": 2.4, opacity: .55 }, svg);
+      const d = X(r.p95); el("path", { d: `M${d} ${y - 5}L${d + 5} ${y}L${d} ${y + 5}L${d - 5} ${y}Z`, fill: css("--bg"), stroke: r.col, "stroke-width": 1.6 }, svg);
+      el("circle", { cx: X(r.last), cy: y, r: 4.5, fill: css("--bg"), stroke: r.col, "stroke-width": 2 }, svg);
+      const c = el("circle", { cx: X(r.last_wide), cy: y, r: 7, fill: r.col }, svg);
+      lbl(svg, X(r.last_wide) + (r.last_wide > 1800 ? -11 : 11), y - 9, r.last_wide, "lab s b", r.last_wide > 1800 ? "end" : "start");
+      const hit = el("rect", { x: 0, y: y - rh / 2, width: w, height: rh, fill: "transparent" }, svg);
+      hit.addEventListener("mousemove", ev => tip2(ev, `<b>${esc(r.name)}</b><br>${fmt(r.n)} outbreak years in ${r.towns} towns<br>first ${r.first}; 95% by ${r.p95}<br>last with 3+ towns: ${r.last_wide} (${r.last_wide_n} towns)<br>last record: ${r.last} (${esc(r.last_towns.join(", "))})`)); hit.addEventListener("mouseleave", hideTip); });
+  });
+
+  /* country table */
+  document.getElementById("ctab").innerHTML = `<thead><tr><th>Country</th><th class="num">Last record</th><th>Where</th><th class="num">Last with 3+ towns</th><th class="num">Outbreak years</th></tr></thead><tbody>` +
+    R.countries.slice().reverse().map(c => `<tr><td><span class="sw" style="background:${lastCol(c.last)}"></span>${esc(c.name)}</td><td class="num">${c.last}</td><td>${esc(c.last_towns.slice(0, 3).join(", "))}${c.last_towns.length > 3 ? "..." : ""}</td><td class="num">${c.last_wide || ""}</td><td class="num">${fmt(c.n)}</td></tr>`).join("") + `</tbody>`;
+})();
+
+/* ---------- start ---------- */
+document.getElementById("theme").onclick = () => { const r = document.documentElement; r.dataset.theme = isDark() ? "light" : "dark"; setTiles(); legend(); drawSpark(); redraws.forEach(f => f()); };
+setTiles(); setMode("year"); setYear(1347); placeNames();
+</script>
+/*FULLSCREEN*/
+</body>
+</html>

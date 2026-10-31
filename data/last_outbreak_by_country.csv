@@ -1,0 +1,25 @@
+country_iso3,country,region,town_years,towns,first_year,last_year,last_towns,last_year_with_3_or_more_towns
+IRL,Ireland,Britain and Ireland,30,12,1348,1650,Dublin,1575
+EST,Estonia,"Poland, the Baltic and Russia",3,1,1656,1658,Tartu,
+IMN,Isle of Man,Britain and Ireland,1,1,1666,1666,Ramsey,
+GBR,United Kingdom,Britain and Ireland,1178,361,1348,1667,Burlington; London; Norwich; Nottingham; Peterborough,1667
+RUS,Russia,"Poland, the Baltic and Russia",2,2,1564,1667,Podol'sk,
+CHE,Switzerland,Central Europe,138,24,1348,1670,Bern,1666
+SVN,Slovenia,Central Europe,1,1,1682,1682,Gorizia,
+LTU,Lithuania,"Poland, the Baltic and Russia",31,5,1419,1712,Vilnius,1711
+LVA,Latvia,"Poland, the Baltic and Russia",12,4,1350,1712,Mazirbe,
+CZE,Czech Republic,Central Europe,11,1,1380,1713,Prague,
+DEU,Germany,Central Europe,714,136,1349,1713,Bremen; Hamburg,1682
+AUT,Austria,Central Europe,55,22,1349,1716,Bruck an der Mur,1679
+FRA,France,France,2767,249,1348,1786,Marseille,1722
+POL,Poland,"Poland, the Baltic and Russia",216,34,1350,1798,Lanckorona,1711
+ITA,Italy,Italy,714,133,1347,1816,Noicattaro,1657
+ESP,Spain,Iberia,436,139,1348,1819,Manacor; Palma,1681
+MAR,Morocco,North Africa,9,1,1348,1819,Tangier,
+DZA,Algeria,North Africa,199,7,1348,1835,Constantine,1821
+TUN,Tunisia,North Africa,67,8,1348,1837,Tunis,1785
+TUR,Turkey,"Anatolia, the Levant and Egypt",86,1,1661,1837,Izmir (Smyrna),
+EGY,Egypt,"Anatolia, the Levant and Egypt",97,2,1348,1841,Cairo,
+LBY,Libya,North Africa,9,4,1589,1857,Benghazi,
+LBN,Lebanon,"Anatolia, the Levant and Egypt",5,1,1348,1859,Beirut,
+PRT,Portugal,Iberia,67,23,1348,1900,Porto,1599

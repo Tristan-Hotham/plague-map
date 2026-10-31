@@ -1,0 +1,18 @@
+The files in this folder are a derived database of:
+
+  Buntgen U, Ginzler C, Esper J, Tegel W, McMichael AJ. Historical plague outbreaks.
+  EnviDat. doi:10.16904/envidat.181. Described in: Buntgen U et al. (2012) Digitizing
+  historical plague. Clinical Infectious Diseases 55(11), 1586 to 1588.
+  A digitisation of Biraben J-N (1975 to 1976) Les hommes et la peste en France et
+  dans les pays europeens et mediterraneens.
+
+The original database is licensed under the Open Database Licence (ODbL) 1.0, and its
+contents under the Database Contents Licence (DbCL) 1.0. This derived database (the CSV
+and JSON files here: repaired, deduplicated and corrected outbreak records, with
+countries, regions and summary tables added by Tristan Hotham, 2026) is made available
+under the Open Database Licence 1.0: https://opendatacommons.org/licenses/odbl/1-0/
+Individual contents remain under the Database Contents Licence 1.0:
+https://opendatacommons.org/licenses/dbcl/1-0/
+
+Country outlines and city names in data/page/ are from Natural Earth (public domain).
+The changes made to the original are described in code/01_clean.py and README.md.
